@@ -570,10 +570,14 @@ void FieldProbe::ComputeDiags (int step)
                 /* m_data now contains up-to-date values for:
                  *  [x, y, z, Ex, Ey, Ez, Bx, By, Bz, and S] */
                 }
+std::cout<< "bool is "<<do_moving_window_FP<<" \n";
                 if (do_moving_window_FP)
                 {
                     if (temp_field_probe_integrate)
                     {
+std::cout<<"Doing Move (integrate)  \n";
+std::cout<<"dt = "<<dt<<" \n";
+std::cout<<"V = "<<warpx.moving_window_v<<" \n";
                         for (auto ip=0; ip < np; ip++)
                         {
                             amrex::ParticleReal xp, yp, zp;
@@ -582,18 +586,28 @@ void FieldProbe::ComputeDiags (int step)
                             {
                                 setPosition(ip, xp+(dt*warpx.moving_window_v*PhysConst::c), yp, zp);
                             }
-                            if (warpx.moving_window_dir == 1)
+                            else if (warpx.moving_window_dir == 1)
                             {
                                 setPosition(ip, xp, yp+(dt*warpx.moving_window_v*PhysConst::c), zp);
                             }
-                            if (warpx.moving_window_dir == WARPX_ZINDEX)
+                            else if (warpx.moving_window_dir == WARPX_ZINDEX)
                             {
                                 setPosition(ip, xp, yp, zp+(dt*warpx.moving_window_v*PhysConst::c));
+                            }
+                            else
+                            {
+                                std::string err_str = "ERROR: Invalid window direction '";
+                                err_str.append(warpx.moving_window_dir);
+                                err_str.append("'. Valid directions are X, Y, and Z.");
+                                amrex::Abort(err_str);
                             }
                         }
                     }
                     else
                     {
+std::cout<<"Doing Move (non-integrate)  \n";
+std::cout<<"dt = "<<dt<<" \n";
+std::cout<<"V = "<<warpx.moving_window_v<<" \n";
                         for (auto ip=0; ip < np; ip++)
                         {
                             amrex::ParticleReal xp, yp, zp;
@@ -602,13 +616,20 @@ void FieldProbe::ComputeDiags (int step)
                             {
                                 setPosition(ip, xp+(dt*warpx.moving_window_v*PhysConst::c)*(step-m_last_compute_step), yp, zp);
                             }
-                            if (warpx.moving_window_dir == 1)
+                            else if (warpx.moving_window_dir == 1)
                             {
                                 setPosition(ip, xp, yp+(dt*warpx.moving_window_v*PhysConst::c)*(step-m_last_compute_step), zp);
                             }
-                            if (warpx.moving_window_dir == WARPX_ZINDEX)
+                            else if (warpx.moving_window_dir == WARPX_ZINDEX)
                             {
                                 setPosition(ip, xp, yp, zp+(dt*warpx.moving_window_v*PhysConst::c)*(step-m_last_compute_step));
+                            }
+                            else
+                            {
+                                std::string err_str = "ERROR: Invalid window direction '";
+                                err_str.append(warpx.moving_window_dir);
+                                err_str.append("'. Valid directions are X, Y, and Z.");
+                                amrex::Abort(err_str);
                             }
                         }
                     }
